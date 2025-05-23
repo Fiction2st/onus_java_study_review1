@@ -18,12 +18,21 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeResponseDTO createEmployee(EmployeeDTO employeeDTO) {
-        return null;
+        if(employeeRepository.existsByEmail(employeeDTO.getEmail())){
+            throw new RuntimeException("Email already exists");
+        }
+
+        Employees employee = EmployeeMapper.mapToEmployees(employeeDTO);
+        employeeRepository.save(employee);
+
+        return EmployeeMapper.mapToEmployeeResponseDTO(employee);
     }
 
     @Override
     public EmployeeResponseDTO getEmployeeById(String employeeId) {
-        return null;
+        Employees employees = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+        return EmployeeMapper.mapToEmployeeResponseDTO(employees);
     }
 
     @Override
@@ -36,11 +45,26 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public void deleteEmployeeById(String employeeId) {
-
+        Employees employees = employeeRepository.findById(employeeId)
+                .orElseThrow(()-> new RuntimeException("Employee not found"));
+        employeeRepository.delete(employees);
     }
 
     @Override
     public EmployeeResponseDTO updateEmployee(String employeeId, EmployeeDTO employeeDTO) {
-        return null;
+        Employees employees = employeeRepository.findById(employeeId)
+                .orElseThrow(()-> new RuntimeException("Employee not found"));
+        if(!employees.getEmail().equals(employeeDTO.getEmail()) && employeeRepository.existsByEmail(employeeDTO.getEmail())){
+            throw new RuntimeException("Email already exists");
+        }
+
+        employees.setFirstName(employeeDTO.getFirstName());
+        employees.setLastName(employeeDTO.getLastName());
+        employees.setEmail(employeeDTO.getEmail());
+        employees.setDepartment(employeeDTO.getDepartment());
+
+        Employees updatedEmployee = employeeRepository.save(employees);
+
+        return EmployeeMapper.mapToEmployeeResponseDTO(updatedEmployee);
     }
 }
