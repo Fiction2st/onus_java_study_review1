@@ -2,10 +2,15 @@ package com.onus.crud_review1.services;
 
 import com.onus.crud_review1.dtos.EmployeeDTO;
 import com.onus.crud_review1.dtos.EmployeeResponseDTO;
+import com.onus.crud_review1.dtos.PageResponseDTO;
 import com.onus.crud_review1.entities.Employees;
 import com.onus.crud_review1.mapper.EmployeeMapper;
 import com.onus.crud_review1.repositories.EmployeeRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -66,5 +71,36 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employees updatedEmployee = employeeRepository.save(employees);
 
         return EmployeeMapper.mapToEmployeeResponseDTO(updatedEmployee);
+    }
+
+    @Override
+    public PageResponseDTO getAllEmployeeWithPagination(int pageNo, int pageSize, String sortBy, String sortDirection, String searchKeyword) {
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name())
+                ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(pageNo -1, pageSize, sort);
+        Page<Employees> employeesPage;
+        if(searchKeyword == null || searchKeyword.trim().isEmpty()) {
+            employeesPage = employeeRepository.findAll(pageable);
+        } else {
+            employeesPage = employeeRepository.findAllByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCaseOrEmailContainingIgnoreCase(
+                    searchKeyword, searchKeyword, searchKeyword, pageable
+            );
+        }
+
+        List<EmployeeResponseDTO> employeeResponseDTOS = employeesPage.getContent()
+                .stream()
+                .map(EmployeeMapper::mapToEmployeeResponseDTO)
+                .collect(Collectors.toList());
+
+        return PageResponseDTO.builder()
+                .content(employeeResponseDTOS)
+                .pageNo(pageNo)
+                .pageSize(pageSize)
+                .totalPages(employeesPage.getTotalPages())
+                .totalSize(employeesPage.getTotalElements())
+                .hasNext(employeesPage.hasNext())
+                .hasPrevious(employeesPage.hasPrevious())
+                .build();
     }
 }
