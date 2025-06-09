@@ -1,7 +1,7 @@
 package com.onus.crud_review1.mapper;
 
-import com.onus.crud_review1.dtos.EmployeeDTO;
-import com.onus.crud_review1.dtos.EmployeeResponseDTO;
+import com.onus.crud_review1.dtos.employee.EmployeeDTO;
+import com.onus.crud_review1.dtos.employee.EmployeeResponseDTO;
 import com.onus.crud_review1.entities.Employees;
 
 public class EmployeeMapper {

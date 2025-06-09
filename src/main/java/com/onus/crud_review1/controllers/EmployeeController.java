@@ -1,6 +1,6 @@
 package com.onus.crud_review1.controllers;
 
-import com.onus.crud_review1.dtos.EmployeeResponseDTO;
+import com.onus.crud_review1.dtos.employee.EmployeeResponseDTO;
 import com.onus.crud_review1.dtos.PageResponseDTO;
 import com.onus.crud_review1.services.EmployeeService;
 import lombok.AllArgsConstructor;
